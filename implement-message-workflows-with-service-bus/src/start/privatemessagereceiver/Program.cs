@@ -9,7 +9,7 @@ namespace privatemessagereceiver
     class Program
     {
 
-        const string ServiceBusConnectionString = "";
+        const string ServiceBusConnectionString = "Endpoint=sb://salesteamapp-fm.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=+3Vm7+tpRDRWByAlaUunS4woXplvAcAjxs2bWP0V9TU=";
         const string QueueName = "salesmessages";
         static IQueueClient queueClient;
 
