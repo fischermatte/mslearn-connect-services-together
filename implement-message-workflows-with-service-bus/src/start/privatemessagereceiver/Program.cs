@@ -9,7 +9,7 @@ namespace privatemessagereceiver
     class Program
     {
 
-        const string ServiceBusConnectionString = "Endpoint=sb://salesteamapp-fm.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=+3Vm7+tpRDRWByAlaUunS4woXplvAcAjxs2bWP0V9TU=";
+        const string ServiceBusConnectionString = "Endpoint=sb://salesteamapp-fm.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=uAGLiEV2V81ebUONRyxh3t9wzVF5B0lHY/XtK5RCOEE=";
         const string QueueName = "salesmessages";
         static IQueueClient queueClient;
 
@@ -24,27 +24,33 @@ namespace privatemessagereceiver
         {
 
             // Create a Queue Client here
-
+            queueClient = new QueueClient(ServiceBusConnectionString, QueueName);
             Console.WriteLine("======================================================");
             Console.WriteLine("Press ENTER key to exit after receiving all the messages.");
             Console.WriteLine("======================================================");
 
             RegisterMessageHandler();
-        
+
             Console.Read();
 
             // Close the queue here
-
+            await queueClient.CloseAsync();
         }
 
         static void RegisterMessageHandler()
         {
-            throw new NotImplementedException();
+            var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
+            {
+                MaxConcurrentCalls = 1,
+                AutoComplete = false
+            };
+            queueClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
         }
 
         static async Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Received message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
+            await queueClient.CompleteAsync(message.SystemProperties.LockToken);
         }
 
         static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
@@ -56,6 +62,6 @@ namespace privatemessagereceiver
             Console.WriteLine($"- Entity Path: {context.EntityPath}");
             Console.WriteLine($"- Executing Action: {context.Action}");
             return Task.CompletedTask;
-        }   
+        }
     }
 }
